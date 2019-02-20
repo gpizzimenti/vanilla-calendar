@@ -32,10 +32,28 @@
 ```html
 <script src="vanillaCalendar.js" type="text/javascript"></script>
 <script>
-window.addEventListener('load', function () {
-  vanillaCalendar.init();
-})
-</script>
+/* 
+	
+for i8n you can alternatively:	
+	
+ - specify the **locale.langID** option (in the *<ISO 639-1>-<ISO 3166-1>* format) for automatically translated weekdays and months labels 
+
+ - passing translations as arrays of strings in the **locale.daysShort** and **locale.months** options  
+
+ - specify **locale.langID** AND passing **locale.daysShort** or **locale.months** to override only weekdays (as in the example below) or months labels
+
+*/
+	
+	window.addEventListener('load', function () {
+		vanillaCalendar.init({
+			disablePastDays: true,
+			locale: {
+				langID	: 'it-IT',
+				daysShort: ["L","M","M","G","V","S","D"]/*,
+				months: ["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"]*/
+			}
+		});
+	})</script>
 ```
 
 ### Development

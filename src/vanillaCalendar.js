@@ -1,15 +1,21 @@
 var vanillaCalendar = {
   month: document.querySelectorAll('[data-calendar-area="month"]')[0],
+  weekdays: document.querySelectorAll('.vcal-week span'),
   next: document.querySelectorAll('[data-calendar-toggle="next"]')[0],
   previous: document.querySelectorAll('[data-calendar-toggle="previous"]')[0],
   label: document.querySelectorAll('[data-calendar-label="month"]')[0],
   activeDates: null,
+  months: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+  daysShort: ['MON','TUE','WED','THU','FRI','SAT','SUN'],
   date: new Date(),
   todaysDate: new Date(),
 
   init: function (options) {
     this.options = options
+    
     this.date.setDate(1)
+	
+    this.createLabels()
     this.createMonth()
     this.createListeners()
   },
@@ -31,6 +37,49 @@ var vanillaCalendar = {
     })
   },
 
+  createLabels: function () {
+    
+	if (!this.options || !this.options.locale)  return false;
+	
+	var _this = this
+	
+	//months
+	if (this.options.locale.months) 
+		this.months = this.options.locale.months
+	else if (this.options.locale.langID && this.date.toLocaleDateString) { 
+		for (i = 0; i < 12; i++) { 
+			var monthDate = new Date(Date.UTC(2000, i, 1, 1, 0, 0)),
+				monthString =   monthDate.toLocaleDateString(_this.options.locale.langID,{month: 'long'})
+		  
+				_this.months[i] = monthString
+		}
+	}
+	
+	//days
+	if (this.options.locale.daysShort) 
+		this.daysShort = this.options.locale.daysShort;
+	else if (this.options.locale.langID && this.date.toLocaleDateString) { 
+		for (i = 0; i < 7; i++) { 
+		  var dayDate = new Date(Date.UTC(2000, 0, 1, 1, 0, 0)),
+			  dayString = "";
+		  
+			while (dayDate.getDay() !== i) {
+				dayDate.setDate(dayDate.getDate() + 1);
+			}
+			
+			dayString =  dayDate.toLocaleDateString(_this.options.locale.langID,{weekday: 'short'})
+		  
+		    _this.daysShort[i] = dayString.toUpperCase()
+		}
+		
+		_this.daysShort.push(_this.daysShort.splice(0, 1)[0]); //push SUN to the end
+	}	
+
+	for (i = 0; i < 7; i++) { 	
+	 _this.weekdays[i].innerHTML = _this.daysShort[i]
+	}
+  },
+
   createDay: function (num, day, year) {
     var newDay = document.createElement('div')
     var dateEl = document.createElement('span')
@@ -47,7 +96,7 @@ var vanillaCalendar = {
       }
     }
 
-    if (this.options.disablePastDays && this.date.getTime() <= this.todaysDate.getTime() - 1) {
+    if (this.options && this.options.disablePastDays && this.date.getTime() <= this.todaysDate.getTime() - 1) {
       newDay.classList.add('vcal-date--disabled')
     } else {
       newDay.classList.add('vcal-date--active')
@@ -94,27 +143,10 @@ var vanillaCalendar = {
     this.date.setMonth(this.date.getMonth() - 1)
 
     this.label.innerHTML =
-      this.monthsAsString(this.date.getMonth()) + ' ' + this.date.getFullYear()
+    this.months[this.date.getMonth()] + ' ' + this.date.getFullYear()
     this.dateClicked()
-  },
-
-  monthsAsString: function (monthIndex) {
-    return [
-      'January',
-      'Febuary',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December'
-    ][monthIndex]
-  },
-
+  }
+  ,
   clearCalendar: function () {
     vanillaCalendar.month.innerHTML = ''
   },
