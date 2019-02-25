@@ -1,4 +1,5 @@
 var vanillaCalendar = {
+  namespace	: "vanillaCalendar",
   month: document.querySelectorAll('[data-calendar-area="month"]')[0],
   next: document.querySelectorAll('[data-calendar-toggle="next"]')[0],
   previous: document.querySelectorAll('[data-calendar-toggle="previous"]')[0],
@@ -12,7 +13,22 @@ var vanillaCalendar = {
     this.date.setDate(1)
     this.createMonth()
     this.createListeners()
+	this.throwsCalendarEvent("calendarSet", this.date)
   },
+  
+  throwsCalendarEvent: function (name, data) {
+		  
+	  var evt;
+	  
+	  if ('CustomEvent' in window && typeof window.CustomEvent === 'function') {
+		evt = new CustomEvent(this.namespace + ":" + name , {'bubbles': true , 'detail': data })
+	  } else { //IE11
+		evt = document.createEvent('CustomEvent')
+		evt.initCustomEvent(this.namespace + ":" + name, true, true, data)
+	  }
+	  
+	  this.month.dispatchEvent(evt)
+  }, 
 
   createListeners: function () {
     var _this = this
@@ -47,7 +63,7 @@ var vanillaCalendar = {
       }
     }
 
-    if (this.options.disablePastDays && this.date.getTime() <= this.todaysDate.getTime() - 1) {
+    if (this.options && this.options.disablePastDays && this.date.getTime() <= this.todaysDate.getTime() - 1) {
       newDay.classList.add('vcal-date--disabled')
     } else {
       newDay.classList.add('vcal-date--active')
@@ -69,10 +85,9 @@ var vanillaCalendar = {
     )
     for (var i = 0; i < this.activeDates.length; i++) {
       this.activeDates[i].addEventListener('click', function (event) {
-        var picked = document.querySelectorAll(
-          '[data-calendar-label="picked"]'
-        )[0]
-        picked.innerHTML = this.dataset.calendarDate
+		  
+		_this.throwsCalendarEvent('dateSet', this.dataset.calendarDate)  
+		  
         _this.removeActiveClass()
         this.classList.add('vcal-date--selected')
       })
@@ -92,9 +107,10 @@ var vanillaCalendar = {
     // while loop trips over and day is at 30/31, bring it back
     this.date.setDate(1)
     this.date.setMonth(this.date.getMonth() - 1)
+	this.throwsCalendarEvent('monthSet', this.date)  
 
     this.label.innerHTML =
-      this.monthsAsString(this.date.getMonth()) + ' ' + this.date.getFullYear()
+    this.monthsAsString(this.date.getMonth()) + ' ' + this.date.getFullYear()
     this.dateClicked()
   },
 

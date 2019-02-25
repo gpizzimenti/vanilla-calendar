@@ -32,9 +32,21 @@
 ```html
 <script src="vanillaCalendar.js" type="text/javascript"></script>
 <script>
-window.addEventListener('load', function () {
-  vanillaCalendar.init();
-})
+		window.addEventListener('load', function () {
+		  vanillaCalendar.init();
+		})
+
+		var container = document.getElementById("v-cal");
+
+			container.addEventListener('vanillaCalendar:calendarSet',function (e) {
+				alert("Calendar set: " + e.detail);
+			});
+			container.addEventListener('vanillaCalendar:monthSet',function (e) {
+				alert("Month set: " + e.detail);
+			});
+			container.addEventListener('vanillaCalendar:dateSet',function (e) {
+				document.querySelector('[data-calendar-label="picked"]').innerHTML = e.detail;
+			});
 </script>
 ```
 
